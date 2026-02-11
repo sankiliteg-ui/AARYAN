@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For Khushi | From Aaryan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        /* CSS remains largely the same for design consistency */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: #050505; color: white; overflow-x: hidden; touch-action: manipulation; }
+        #canvas3d { position: fixed; top: 0; left: 0; z-index: -1; width: 100%; height: 100%; }
+
+        #start-overlay, #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 200;
+        }
+
+        #loader { z-index: 100; display: none; transition: opacity 0.8s ease; }
+
+        .heart-beat { font-size: 60px; animation: beat 1.2s infinite; filter: drop-shadow(0 0 15px #ff2d55); }
+        @keyframes beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+
+        .page { height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1); padding: 2.5rem; border-radius: 35px;
+            max-width: 420px; width: 95%; box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+
+        .photo-frame { width: 140px; height: 140px; margin: 0 auto 20px; border-radius: 50%; border: 3px solid #ff2d55; overflow: hidden; box-shadow: 0 0 20px #ff2d55; }
+        .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+
+        h1, h2 { font-size: 2.2rem; color: #ff2d55; margin-bottom: 12px; }
+        p { font-size: 1rem; line-height: 1.5; opacity: 0.9; }
+
+        .valentine-btn, .start-btn {
+            margin-top: 25px; padding: 15px 40px; border: none;
+            background: linear-gradient(45deg, #ff2d55, #ff7b92);
+            color: white; border-radius: 50px; font-weight: 600;
+            font-size: 1rem; cursor: pointer; text-transform: uppercase;
+            letter-spacing: 1px; animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 10px rgba(255, 45, 85, 0.5); } 50% { box-shadow: 0 0 25px rgba(255, 45, 85, 0.8); } }
+
+        .heart-particle { position: fixed; top: -10%; color: #ff2d55; user-select: none; z-index: 99; pointer-events: none; }
+        #final-msg { margin-top: 20px; font-weight: 600; color: gold; display: none; animation: beat 1.5s infinite; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+
+    <div id="start-overlay">
+        <div class="heart-beat">💗</div>
+        <button class="start-btn" onclick="startSurprise()">Open KHUSHI's Gift</button>
+    </div>
+
+    <div id="loader">
+        <div class="heart-beat">👩‍❤️‍👨</div>
+        <h2 style="color: #ff2d55; margin-top: 20px;">Aaryan is preparing...</h2>
+        <p>Your world is loading, Khushi...</p>
+    </div>
+
+    <audio id="bg-music" loop preload="auto">
+        <source src="aaryan.mp3" type="audio/mpeg">
+    </audio>
+
+    <canvas id="canvas3d"></canvas>
+
+    <main id="content" style="display:none;">
+        <section class="page">
+            <div class="glass-card reveal">
+                <h1>Hi Khushi ❤️</h1>
+                <p>I built this digital universe because a simple text wasn't enough. Scroll down...</p>
+            </div>
+        </section>
+
+        <section class="page">
+            <div class="glass-card reveal">
+                <div class="photo-frame">
+                    <img src="khushi.jpeg" alt="Khushi">
+                </div>
+                <h2>My Whole World</h2>
+                <p>Khushi, you're the star that makes my entire sky glow.</p>
+            </div>
+        </section>
+
+        <section class="page">
+            <div class="glass-card reveal">
+                <h2>Aaryan's Promise</h2>
+                <p>Today, tomorrow, and forever—I am yours.</p>
+                <button id="v-btn" class="valentine-btn" onclick="celebrate(event)">Happy Valentine's Day!</button>
+                <div id="final-msg">I Love You Forever, Khushi! ✨</div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <script>
+        const audio = document.getElementById('bg-music');
+        const loader = document.getElementById('loader');
+        const startOverlay = document.getElementById('start-overlay');
+        const content = document.getElementById('content');
+
+        function startSurprise() {
+            audio.play().catch(e => console.log("Audio play failed"));
+            startOverlay.style.display = 'none';
+            loader.style.display = 'flex';
+
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                content.style.display = 'block';
+                setTimeout(() => loader.remove(), 800);
+            }, 4000);
+        }
+
+        // Optimized 3D for Android
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        
+        const renderer = new THREE.WebGLRenderer({ 
+            canvas: document.querySelector('#canvas3d'), 
+            alpha: true, 
+            antialias: false, // Turn off for mobile performance
+            powerPreference: "high-performance" 
+        });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        // CRITICAL FOR ANDROID: Limit resolution to prevent GPU lag
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+
+        const geometry = new THREE.BufferGeometry();
+        // Slightly fewer particles for smooth mobile scrolling
+        const count = window.innerWidth < 600 ? 1200 : 3000;
+        const pos = new Float32Array(count * 3);
+        for(let i=0; i<pos.length; i++) pos[i] = (Math.random() - 0.5) * 15;
+        geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        
+        const material = new THREE.PointsMaterial({ size: 0.04, color: '#ff2d55', transparent: true, opacity: 0.6 });
+        const points = new THREE.Points(geometry, material);
+        scene.add(points);
+        camera.position.z = 5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            points.rotation.y += 0.0015;
+            points.rotation.x += 0.0005;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.utils.toArray(".reveal").forEach((el) => {
+            gsap.from(el, {
+                scrollTrigger: { trigger: el, start: "top 90%" },
+                opacity: 0, scale: 0.9, y: 30, duration: 1
+            });
+        });
+
+        function celebrate(e) {
+            document.getElementById('v-btn').style.display = 'none';
+            document.getElementById('final-msg').style.display = 'block';
+            
+            for(let i=0; i<30; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-particle';
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                document.body.appendChild(heart);
+                
+                gsap.to(heart, {
+                    y: window.innerHeight + 100,
+                    x: (Math.random() - 0.5) * 200,
+                    rotation: Math.random() * 360,
+                    duration: Math.random() * 2 + 2,
+                    onComplete: () => heart.remove()
+                });
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
